@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QFileDialog, QPushButton
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QPoint
 
 class App(QWidget):
 
@@ -13,6 +13,7 @@ class App(QWidget):
         self.width = 640
         self.height = 480
         self.initUI()
+        self.mouse_coords = QPoint(-1, -1)
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -29,6 +30,12 @@ class App(QWidget):
         self.label.move(10,50)
 
         self.show()
+
+    def mousePressEvent(self, QMouseEvent):
+        mouse_coords = QMouseEvent.pos()
+        print(QMouseEvent.pos())
+        self.mouse_coords = mouse_coords
+        #print(self.mouse_coords)
 
     @pyqtSlot()
     def browse_image(self):
