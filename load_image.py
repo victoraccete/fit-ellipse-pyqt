@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QFileDialog, QPushButton
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import pyqtSlot, QPoint
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QPen, QPolygon
+from PyQt5.QtCore import pyqtSlot, QPoint, Qt
 
 class App(QWidget):
 
@@ -13,7 +13,8 @@ class App(QWidget):
         self.width = 640
         self.height = 480
         self.initUI()
-        self.mouse_coords = QPoint(-1, -1)
+        self.mouse_coords = []
+        self.points = QPolygon()
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -34,8 +35,8 @@ class App(QWidget):
     def mousePressEvent(self, QMouseEvent):
         mouse_coords = QMouseEvent.pos()
         print(QMouseEvent.pos())
-        self.mouse_coords = mouse_coords
-        #print(self.mouse_coords)
+        self.mouse_coords.append(mouse_coords)
+        print(self.mouse_coords)
 
     @pyqtSlot()
     def browse_image(self):
@@ -47,8 +48,21 @@ class App(QWidget):
 
         self.resize(pixmap.width()+25, pixmap.height()+25)
         self.label.adjustSize()
+        self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
 
         print(imagePath)
+
+    '''def paintEvent(self, ev):
+        qp = QPainter(self)
+        qp.setRenderHint(QPainter.Antialiasing)
+        pen = QPen(Qt.red, 5)
+        brush = QBrush(Qt.red)
+        qp.setPen(pen)
+        qp.setBrush(brush)
+        for i in range(self.points.count()):
+            qp.drawEllipse(self.points.point(i), 5, 5)
+        # or 
+        qp.drawPoints(self.points)'''
 
 
 if __name__ == '__main__':
