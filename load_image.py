@@ -15,6 +15,7 @@ class App(QWidget):
         self.initUI()
         self.mouse_coords = []
         self.points = QPolygon()
+        self.image_path = ""
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -42,23 +43,27 @@ class App(QWidget):
   
     def paintEvent(self, QMouseEvent):
         qp = QPainter(self)
-        qp.setRenderHint(QPainter.Antialiasing)
+        pixmap = QPixmap(self.image_path)
+        qp.drawPixmap(self.rect(), pixmap)
+        #qp.setRenderHint(QPainter.Antialiasing)
+        self.label.adjustSize()
         pen = QPen(Qt.red, 3)
         brush = QBrush(Qt.red)
         qp.setPen(pen)
         qp.setBrush(brush)
-        #for i in range(self.points.count()):
-        #    qp.drawEllipse(self.points.point(i), 3, 3)
+        for i in range(self.points.count()):
+            qp.drawEllipse(self.points.point(i), 3, 3)
         # or 
-        qp.drawPoints(self.points)
+        #qp.drawPoints(self.points)
 
     @pyqtSlot()
     def browse_image(self):
         print('PyQt5 button click')
         image = QFileDialog.getOpenFileName(None, 'OpenFile', '', "Image file(*.jpg *.png)")
         imagePath = image[0]
+        self.image_path = imagePath
         pixmap = QPixmap(imagePath)
-        self.label.setPixmap(pixmap)
+        #self.label.setPixmap(pixmap)
 
         self.resize(pixmap.width()+25, pixmap.height()+25)
         self.label.adjustSize()
