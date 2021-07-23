@@ -47,10 +47,10 @@ class App(QWidget):
         brush = QBrush(Qt.red)
         qp.setPen(pen)
         qp.setBrush(brush)
-        for i in range(self.points.count()):
-            qp.drawEllipse(self.points.point(i), 3, 3)
+        #for i in range(self.points.count()):
+        #    qp.drawEllipse(self.points.point(i), 3, 3)
         # or 
-        # qp.drawPoints(self.points)
+        qp.drawPoints(self.points)
 
     @pyqtSlot()
     def browse_image(self):
@@ -63,6 +63,7 @@ class App(QWidget):
         self.resize(pixmap.width()+25, pixmap.height()+25)
         self.label.adjustSize()
         self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
+        self.points = QPolygon() # resetting QPolygon everytime it loads a new image
 
         print(imagePath)
 
