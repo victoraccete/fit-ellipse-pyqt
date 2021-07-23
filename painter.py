@@ -1,43 +1,33 @@
 import sys
-from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QMainWindow, QApplication
-from PyQt5.QtGui import QPixmap, QPainter, QPen
+from PyQt5 import QtWidgets, QtGui, QtCore, uic
 
 
-class Menu(QMainWindow):
-
+class GUI(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.drawing = False
-        self.lastPoint = QPoint()
-        self.image = QPixmap("picture.jpg")
-        self.setGeometry(100, 100, 500, 300)
-        self.resize(self.image.width(), self.image.height())
+        #uic.loadUi('gui.ui', self)
+        self.setFixedSize(self.size())
         self.show()
+        self.points = QtGui.QPolygon()
 
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.drawPixmap(self.rect(), self.image)
+    def mousePressEvent(self, e):
+        self.points << e.pos()
+        self.update()
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.drawing = True
-            self.lastPoint = event.pos()
-
-    def mouseMoveEvent(self, event):
-        if event.buttons() and Qt.LeftButton and self.drawing:
-            painter = QPainter(self.image)
-            painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-            painter.drawLine(self.lastPoint, event.pos())
-            self.lastPoint = event.pos()
-            self.update()
-
-    def mouseReleaseEvent(self, event):
-        if event.button == Qt.LeftButton:
-            self.drawing = False
+    def paintEvent(self, ev):
+        qp = QtGui.QPainter(self)
+        qp.setRenderHint(QtGui.QPainter.Antialiasing)
+        pen = QtGui.QPen(QtCore.Qt.red, 5)
+        brush = QtGui.QBrush(QtCore.Qt.red)
+        qp.setPen(pen)
+        qp.setBrush(brush)
+        for i in range(self.points.count()):
+            qp.drawEllipse(self.points.point(i), 5, 5)
+        # or 
+        # qp.drawPoints(self.points)
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    mainMenu = Menu()
+    app = QtWidgets.QApplication(sys.argv)
+    window = GUI()
     sys.exit(app.exec_())

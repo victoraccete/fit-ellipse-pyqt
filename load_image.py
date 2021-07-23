@@ -37,6 +37,20 @@ class App(QWidget):
         print(QMouseEvent.pos())
         self.mouse_coords.append(mouse_coords)
         print(self.mouse_coords)
+        self.points << QMouseEvent.pos()
+        self.update()
+  
+    def paintEvent(self, QMouseEvent):
+        qp = QPainter(self)
+        qp.setRenderHint(QPainter.Antialiasing)
+        pen = QPen(Qt.red, 3)
+        brush = QBrush(Qt.red)
+        qp.setPen(pen)
+        qp.setBrush(brush)
+        for i in range(self.points.count()):
+            qp.drawEllipse(self.points.point(i), 3, 3)
+        # or 
+        # qp.drawPoints(self.points)
 
     @pyqtSlot()
     def browse_image(self):
@@ -51,18 +65,6 @@ class App(QWidget):
         self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
 
         print(imagePath)
-
-    '''def paintEvent(self, ev):
-        qp = QPainter(self)
-        qp.setRenderHint(QPainter.Antialiasing)
-        pen = QPen(Qt.red, 5)
-        brush = QBrush(Qt.red)
-        qp.setPen(pen)
-        qp.setBrush(brush)
-        for i in range(self.points.count()):
-            qp.drawEllipse(self.points.point(i), 5, 5)
-        # or 
-        qp.drawPoints(self.points)'''
 
 
 if __name__ == '__main__':
