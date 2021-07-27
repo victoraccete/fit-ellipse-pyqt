@@ -2,6 +2,9 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QFileDialog, QPushButton
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QPen, QPolygon
 from PyQt5.QtCore import pyqtSlot, QPoint, Qt
+import cv2
+import numpy as np
+
 
 class App(QWidget):
 
@@ -10,8 +13,8 @@ class App(QWidget):
         self.title = 'Ellipse Fit'
         self.left = 200
         self.top = 50
-        self.width = 640
-        self.height = 480
+        self.width = 300
+        self.height = 300
         self.initUI()
         self.mouse_coords = []
         self.points = QPolygon()
@@ -53,8 +56,24 @@ class App(QWidget):
         qp.setBrush(brush)
         for i in range(self.points.count()):
             qp.drawEllipse(self.points.point(i), 3, 3)
+            if len(self.mouse_coords) >= 5:
+                points = self.get_all_coords()
+                ellipse = cv2.fitEllipse(points)
+                return ellipse
+
         # or 
         #qp.drawPoints(self.points)
+
+    def get_coords_xy(self, QPoint):
+        x = QPoint.x()
+        y = QPoint.y()
+        return x, y
+
+    def get_all_coords(self):
+        all_coords = []
+        for coords in self.mouse_coords:
+            all_coords.append(self.get_coords_xy(coords))
+        return np.array(all_coords)
 
     @pyqtSlot()
     def browse_image(self):
