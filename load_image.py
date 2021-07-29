@@ -50,6 +50,8 @@ class App(QWidget):
   
     def paintEvent(self, QMouseEvent):
         def int_tup(tup):
+            '''This function is needed because cv2.ellipse funcion
+            requires that center and axes are tuples of integers'''
             return int(tup[0]), int(tup[1])
 
         qp = QPainter(self)
