@@ -60,8 +60,7 @@ class App(QWidget):
         brush = QBrush(Qt.red)
         qp.setPen(pen)
         qp.setBrush(brush)
-        def is_similar(image1, image2):
-            return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
+
         for i in range(self.points.count()):
             qp.drawEllipse(self.points.point(i), 3, 3)
             if len(self.mouse_coords) >= 5:
