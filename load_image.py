@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QPen, QPolygon
 from PyQt5.QtCore import pyqtSlot, QPoint, Qt
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class App(QWidget):
@@ -19,6 +20,8 @@ class App(QWidget):
         self.mouse_coords = []
         self.points = QPolygon()
         self.image_path = ""
+        self.ellipse = None
+        self.image = None
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -38,28 +41,40 @@ class App(QWidget):
 
     def mousePressEvent(self, QMouseEvent):
         mouse_coords = QMouseEvent.pos()
-        print(QMouseEvent.pos())
+        #print(QMouseEvent.pos())
         self.mouse_coords.append(mouse_coords)
         print(self.mouse_coords)
         self.points << QMouseEvent.pos()
         self.update()
+
   
     def paintEvent(self, QMouseEvent):
+        def int_tup(tup):
+            return int(tup[0]), int(tup[1])
+
         qp = QPainter(self)
         pixmap = QPixmap(self.image_path)
         qp.drawPixmap(self.rect(), pixmap)
-        #qp.setRenderHint(QPainter.Antialiasing)
         self.label.adjustSize()
         pen = QPen(Qt.red, 3)
         brush = QBrush(Qt.red)
         qp.setPen(pen)
         qp.setBrush(brush)
+        def is_similar(image1, image2):
+            return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
         for i in range(self.points.count()):
             qp.drawEllipse(self.points.point(i), 3, 3)
             if len(self.mouse_coords) >= 5:
                 points = self.get_all_coords()
                 ellipse = cv2.fitEllipse(points)
-                return ellipse
+                self.ellipse = ellipse
+                e0 = int_tup(ellipse[0])
+                e1 = int_tup(ellipse[1])
+                e2 = ellipse[2]
+                drawn_ellipse = cv2.ellipse(self.image, e0, e1, e2, 0.0, 
+                            360.0, (0, 0, 0), 2)
+                cv2.imshow('Image with ellipse', drawn_ellipse)
+
 
         # or 
         #qp.drawPoints(self.points)
@@ -81,14 +96,12 @@ class App(QWidget):
         image = QFileDialog.getOpenFileName(None, 'OpenFile', '', "Image file(*.jpg *.png)")
         imagePath = image[0]
         self.image_path = imagePath
+        self.image = cv2.imread(self.image_path)
         pixmap = QPixmap(imagePath)
-        #self.label.setPixmap(pixmap)
-
-        self.resize(pixmap.width()+25, pixmap.height()+25)
+        self.resize(pixmap.width(), pixmap.height())
         self.label.adjustSize()
         self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
         self.points = QPolygon() # resetting QPolygon everytime it loads a new image
-
         print(imagePath)
 
 
