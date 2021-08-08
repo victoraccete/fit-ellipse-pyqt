@@ -95,15 +95,18 @@ class App(QWidget):
     def browse_image(self):
         print('PyQt5 button click')
         image = QFileDialog.getOpenFileName(None, 'OpenFile', '', "Image file(*.jpg *.png)")
-        imagePath = image[0]
-        self.image_path = imagePath
-        self.image = cv2.imread(self.image_path)
-        pixmap = QPixmap(imagePath)
-        self.resize(pixmap.width(), pixmap.height())
-        self.label.adjustSize()
-        self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
-        self.points = QPolygon() # resetting QPolygon everytime it loads a new image
-        print(imagePath)
+        if image[0] != "":
+            imagePath = image[0]
+            self.image_path = imagePath
+            self.image = cv2.imread(self.image_path)
+            pixmap = QPixmap(imagePath)
+            self.resize(pixmap.width(), pixmap.height())
+            self.label.adjustSize()
+            self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
+            self.points = QPolygon() # resetting QPolygon everytime it loads a new image
+            print(imagePath)
+        else:
+            print("No file selected.")
 
 
 if __name__ == '__main__':
