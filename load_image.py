@@ -49,10 +49,10 @@ class App(QWidget):
 
   
     def paintEvent(self, QMouseEvent):
-        def int_tup(tup):
+        def int_tup(tup, divide_by=1):
             '''This function is needed because cv2.ellipse funcion
             requires that center and axes are tuples of integers'''
-            return int(tup[0]), int(tup[1])
+            return int(tup[0]//divide_by), int(tup[1]//divide_by)
 
         qp = QPainter(self)
         pixmap = QPixmap(self.image_path)
@@ -65,16 +65,17 @@ class App(QWidget):
 
         for i in range(self.points.count()):
             qp.drawEllipse(self.points.point(i), 3, 3)
-            if len(self.mouse_coords) >= 5:
+            if len(self.mouse_coords) == 5:
                 points = self.get_all_coords()
                 ellipse = cv2.fitEllipse(points)
                 self.ellipse = ellipse
                 e0 = int_tup(ellipse[0])
-                e1 = int_tup(ellipse[1])
+                e1 = int_tup(ellipse[1], divide_by=2)
                 e2 = ellipse[2]
                 drawn_ellipse = cv2.ellipse(self.image, e0, e1, e2, 0.0, 
                             360.0, (0, 0, 0), 2)
                 cv2.imshow('Image with ellipse', drawn_ellipse)
+                self.mouse_coords = []
 
 
         # or 
