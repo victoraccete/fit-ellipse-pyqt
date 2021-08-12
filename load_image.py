@@ -95,7 +95,7 @@ class App(QWidget):
     @pyqtSlot()
     def browse_image(self):
         print('PyQt5 button click')
-        image = QFileDialog.getOpenFileName(None, 'OpenFile', '', "Image file(*.jpg *.png)")
+        image = QFileDialog.getOpenFileName(None, 'OpenFile', '', "Image file(*.jpg *.jpeg *.png *.tif *.tiff *.bmp *.eps)")
         if image[0] != "":
             imagePath = image[0]
             self.image_path = imagePath
