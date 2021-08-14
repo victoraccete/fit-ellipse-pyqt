@@ -1,7 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QFileDialog, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QFileDialog, QPushButton, QScrollArea, QVBoxLayout
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QPen, QPolygon
 from PyQt5.QtCore import pyqtSlot, QPoint, Qt
+from PyQt5 import QtWidgets, QtCore
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,7 +29,6 @@ class App(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
 
         # Create widget
-
         button_browse_img = QPushButton('Browse Image', self)
         button_browse_img.setToolTip('This is load picture button')
         button_browse_img.move(10, 10)
@@ -57,7 +57,7 @@ class App(QWidget):
         qp = QPainter(self)
         pixmap = QPixmap(self.image_path)
         qp.drawPixmap(self.rect(), pixmap)
-        self.label.adjustSize()
+        #self.label.adjustSize()
         pen = QPen(Qt.red, 3)
         brush = QBrush(Qt.red)
         qp.setPen(pen)
@@ -74,6 +74,8 @@ class App(QWidget):
                 e2 = ellipse[2]
                 drawn_ellipse = cv2.ellipse(self.image, e0, e1, e2, 0.0, 
                             360.0, (0, 0, 0), 2)
+                cv2.namedWindow('Image with ellipse', cv2.WINDOW_NORMAL)
+                cv2.resizeWindow('Image with ellipse', pixmap.width(), pixmap.height())
                 cv2.imshow('Image with ellipse', drawn_ellipse)
                 self.mouse_coords = []
 
@@ -101,7 +103,12 @@ class App(QWidget):
             self.image_path = imagePath
             self.image = cv2.imread(self.image_path)
             pixmap = QPixmap(imagePath)
-            self.resize(pixmap.width(), pixmap.height())
+            self.width = pixmap.width()
+            self.height = pixmap.height()
+            #self.resize(pixmap.width(), pixmap.height())
+            #self.showMaximized()
+            self.setFixedSize(pixmap.width(), pixmap.height())
+            self.setFixedSize(self.size())
             self.label.adjustSize()
             self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
             self.points = QPolygon() # resetting QPolygon everytime it loads a new image
