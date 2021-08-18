@@ -22,7 +22,10 @@ class App(QWidget):
         self.points = QPolygon()
         self.image_path = ""
         self.ellipse = None
-        self.image = None
+        self.image = np.array([0])
+        screen = app.primaryScreen()
+        self.screen_size = screen.size()
+        #print('Size: %d x %d' % (size.width(), size.height()))
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -56,6 +59,8 @@ class App(QWidget):
 
         qp = QPainter(self)
         pixmap = QPixmap(self.image_path)
+        if self.image.any() != False:
+            pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.FastTransformation)
         qp.drawPixmap(self.rect(), pixmap)
         #self.label.adjustSize()
         pen = QPen(Qt.red, 3)
@@ -94,6 +99,24 @@ class App(QWidget):
             all_coords.append(self.get_coords_xy(coords))
         return np.array(all_coords)
 
+    def need_to_resize(self):
+        if(self.image.shape[0] >= self.screen_size.width() or 
+            self.image.shape[1] >= self.screen_size.height()):
+            return True
+        else:
+            return False
+
+    def resize_image(self):
+        print("Resizing image.")
+        #img = cv2.imread('your_image.jpg')
+        width = self.image.shape[0]
+        height = self.image.shape[1]
+        res = cv2.resize(self.image, dsize=(width//2, height//2))
+        if self.need_to_resize == True:
+            self.resize_image()
+        else:
+            return None
+
     @pyqtSlot()
     def browse_image(self):
         print('PyQt5 button click')
@@ -102,7 +125,14 @@ class App(QWidget):
             imagePath = image[0]
             self.image_path = imagePath
             self.image = cv2.imread(self.image_path)
+            print('Screen Size: %d x %d' % (self.screen_size.width(), self.screen_size.height()))
+            print('Image Size: %d x %d ' % (self.image.shape[0], self.image.shape[1]))
+            if self.need_to_resize() == True:
+                print("Image resizing required.")
+                self.resize_image()
+                print('New size: %d x %d ' % (self.image.shape[0], self.image.shape[1]))
             pixmap = QPixmap(imagePath)
+            pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.FastTransformation)
             self.width = pixmap.width()
             self.height = pixmap.height()
             #self.resize(pixmap.width(), pixmap.height())
