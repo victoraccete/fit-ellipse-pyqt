@@ -23,6 +23,7 @@ class App(QWidget):
         self.image_path = ""
         self.ellipse = None
         self.image = np.array([0])
+        self.resized = False
         screen = app.primaryScreen()
         self.screen_size = screen.size()
         #print('Size: %d x %d' % (size.width(), size.height()))
@@ -60,9 +61,9 @@ class App(QWidget):
         qp = QPainter(self)
         pixmap = QPixmap(self.image_path)
         if self.image.any() != False:
-            pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.FastTransformation)
+            pixmap = pixmap.scaled(self.image.shape[0], self.image.shape[1], Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.label.adjustSize()
         qp.drawPixmap(self.rect(), pixmap)
-        #self.label.adjustSize()
         pen = QPen(Qt.red, 3)
         brush = QBrush(Qt.red)
         qp.setPen(pen)
@@ -77,10 +78,11 @@ class App(QWidget):
                 e0 = int_tup(ellipse[0])
                 e1 = int_tup(ellipse[1], divide_by=2)
                 e2 = ellipse[2]
+                self.image = cv2.imread(self.image_path)
                 drawn_ellipse = cv2.ellipse(self.image, e0, e1, e2, 0.0, 
                             360.0, (0, 0, 0), 2)
                 cv2.namedWindow('Image with ellipse', cv2.WINDOW_NORMAL)
-                cv2.resizeWindow('Image with ellipse', pixmap.width(), pixmap.height())
+                cv2.resizeWindow('Image with ellipse', self.image.shape[1], self.image.shape[0])
                 cv2.imshow('Image with ellipse', drawn_ellipse)
                 self.mouse_coords = []
 
@@ -108,11 +110,13 @@ class App(QWidget):
 
     def resize_image(self):
         print("Resizing image.")
-        #img = cv2.imread('your_image.jpg')
         width = self.image.shape[0]
         height = self.image.shape[1]
-        res = cv2.resize(self.image, dsize=(width//2, height//2))
-        if self.need_to_resize == True:
+        self.image = cv2.resize(self.image, dsize=(int(height/1.10), int(width/1.10)))
+        print("Current size: %d x %d" % (self.image.shape[0], self.image.shape[1]))
+        self.resized = True
+        if self.need_to_resize() == True:
+            print("Resizing again...")
             self.resize_image()
         else:
             return None
@@ -131,8 +135,15 @@ class App(QWidget):
                 print("Image resizing required.")
                 self.resize_image()
                 print('New size: %d x %d ' % (self.image.shape[0], self.image.shape[1]))
-            pixmap = QPixmap(imagePath)
-            pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.FastTransformation)
+            
+            extension = self.image_path.split('.')[1]
+            print("File extension: ", extension)
+            cv2.imwrite('temp.' + extension, self.image)
+            print("New temp image generated.")
+            self.image_path = 'temp.' + extension
+            pixmap = QPixmap(self.image_path)
+            if self.resized == True:
+                pixmap = pixmap.scaled(self.image.shape[0], self.image.shape[1], Qt.KeepAspectRatio, Qt.FastTransformation)
             self.width = pixmap.width()
             self.height = pixmap.height()
             #self.resize(pixmap.width(), pixmap.height())
@@ -142,7 +153,7 @@ class App(QWidget):
             self.label.adjustSize()
             self.mouse_coords = [] # resetting mouse_coords list everytime it loads a new image
             self.points = QPolygon() # resetting QPolygon everytime it loads a new image
-            print(imagePath)
+            print(self.image_path)
         else:
             print("No file selected.")
 
